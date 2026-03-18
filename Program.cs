@@ -5,21 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Подключение к базе
-var rawConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
-              ?? builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
+                      ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (!string.IsNullOrEmpty(rawConn) && (rawConn.StartsWith("postgres://") || rawConn.StartsWith("postgresql://")))
+if (!string.IsNullOrEmpty(connectionString) && connectionString.Contains("://"))
 {
-    var uri = new Uri(rawConn);
+    var uri = new Uri(connectionString);
     var userInfo = uri.UserInfo.Split(':');
-    var username = userInfo[0];
-    var password = userInfo.Length > 1 ? userInfo[1] : "";
-    var host = uri.Host;
-    var port = uri.Port;
-    var database = uri.AbsolutePath.TrimStart('/');
-
-    rawConn = $"Host={host};Port={port};Database={database};Username={username};Password={password};Ssl Mode=Require;Trust Server Certificate=true";
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};Ssl Mode=Require;Trust Server Certificate=true";
 }
 
 builder.Services.AddControllers();
@@ -32,35 +25,18 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Настройка БД без лишней вложенности
 builder.Services.AddDbContext<DbConexy>(options =>
-    options.UseNpgsql(rawConn, npgsqlOptions => 
-    {
-        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public");
-    }));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IConexyRepository, ConexyRepository>();
 builder.Services.AddScoped<IConexyService, ConexyService>();
 
 var app = builder.Build();
 
-// Миграции
-if (app.Environment.IsDevelopment()  app.Environment.EnvironmentName == "Production"  app.Environment.EnvironmentName == "Docker")
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var services = scope.ServiceProvider;
-        try
-        {
-            var context = services.GetRequiredService<DbConexy>();
-            context.Database.Migrate();
-        }
-        catch (Exception ex)
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "Ошибка миграции");
-        }
-    }
+    var context = scope.ServiceProvider.GetRequiredService<DbConexy>();
+    context.Database.Migrate();
 }
 
 app.UseCors();
