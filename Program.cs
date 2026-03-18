@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Блок подключения к базе
+// Подключение к базе
 var rawConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
               ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -32,18 +32,20 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ИСПРАВЛЕНО: Правильный синтаксис подключения
+// Настройка БД без лишней вложенности
 builder.Services.AddDbContext<DbConexy>(options =>
     options.UseNpgsql(rawConn, npgsqlOptions => 
-        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public")));
+    {
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+    }));
 
 builder.Services.AddScoped<IConexyRepository, ConexyRepository>();
 builder.Services.AddScoped<IConexyService, ConexyService>();
 
 var app = builder.Build();
 
-var env = app.Environment.EnvironmentName;
-if (app.Environment.IsDevelopment()  env == "Production"  env == "Docker")
+// Миграции
+if (app.Environment.IsDevelopment()  app.Environment.EnvironmentName == "Production"  app.Environment.EnvironmentName == "Docker")
 {
     using (var scope = app.Services.CreateScope())
     {
@@ -56,8 +58,7 @@ if (app.Environment.IsDevelopment()  env == "Production"  env == "Docker")
         catch (Exception ex)
         {
             var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "Ошибка при применении миграций");
-            if (env == "Production") throw;
+            logger.LogError(ex, "Ошибка миграции");
         }
     }
 }
