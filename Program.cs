@@ -2,27 +2,43 @@ using ConexyTask.DbContext;
 using ConexyTask.Repository;
 using ConexyTask.Service;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Получаем строку подключения (сначала из Render, потом из конфига)
-var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
-                      ?? builder.Configuration.GetConnectionString("DefaultConnection");
+// 1. Берем строку подключения
+var rawConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
+              ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// 2. Парсим строку, если она в формате postgres:// (специально для Render)
-if (!string.IsNullOrEmpty(connectionString) && connectionString.Contains("://"))
+string finalConn;
+
+// 2. Умный парсер, который не сломает порт
+if (!string.IsNullOrEmpty(rawConn) && rawConn.Contains("://"))
 {
-    var uri = new Uri(connectionString);
-    var userInfo = uri.UserInfo.Split(':');
-    var user = userInfo[0];
-    var pass = userInfo.Length > 1 ? userInfo[1] : "";
+    var builderConn = new NpgsqlConnectionStringBuilder();
+    var uri = new Uri(rawConn);
     
-    // ФИКС: Если порт не указан (-1), ставим стандартный 5432
-    var port = uri.Port <= 0 ? 5432 : uri.Port;
-    var host = uri.Host;
-    var db = uri.AbsolutePath.TrimStart('/');
+    builderConn.Host = uri.Host;
+    builderConn.Database = uri.AbsolutePath.TrimStart('/');
+    
+    var userInfo = uri.UserInfo.Split(':');
+    builderConn.Username = userInfo[0];
+    if (userInfo.Length > 1) builderConn.Password = userInfo[1];
 
-    connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={pass};Ssl Mode=Require;Trust Server Certificate=true";
+    // Если порт в ссылке есть - ставим его, если нет (-1) - Npgsql сам поставит 5432
+    if (uri.Port > 0) 
+    {
+        builderConn.Port = uri.Port;
+    }
+
+    builderConn.SslMode = SslMode.Require;
+    builderConn.TrustServerCertificate = true;
+    
+    finalConn = builderConn.ToString();
+}
+else
+{
+    finalConn = rawConn;
 }
 
 builder.Services.AddControllers();
@@ -35,32 +51,29 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 3. Подключаем базу данных
+// 3. Используем NpgsqlConnectionStringBuilder для надежности
 builder.Services.AddDbContext<DbConexy>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(finalConn));
 
 builder.Services.AddScoped<IConexyRepository, ConexyRepository>();
 builder.Services.AddScoped<IConexyService, ConexyService>();
 
 var app = builder.Build();
 
-// 4. Применяем миграции при старте (автоматическое создание таблиц)
+// 4. Безопасные миграции
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<DbConexy>();
         context.Database.Migrate();
-        Console.WriteLine("Миграции успешно применены.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Ошибка при миграции: {ex.Message}");
-        // Не валим приложение сразу, чтобы можно было посмотреть логи
+        Console.WriteLine($"Migration error: {ex.Message}");
     }
 }
 
 app.UseCors();
 app.MapControllers();
-
 app.Run();
