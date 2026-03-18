@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConexyTask · морская версия</title>
+    <!-- Подключаем шрифт Inter и иконки Font Awesome для красоты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #b3e5fc 0%, #81d4fa 50%, #4fc3f7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 32px 20px;
+            line-height: 1.5;
+            color: #01579b;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* Хедер с волной */
+        .header {
+            margin-bottom: 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #006064, #0097a7, #4dd0e1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            filter: drop-shadow(0 8px 12px rgba(0, 96, 100, 0.2));
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #006374;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(8px);
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 40px;
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Карточка формы */
+        .form-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 25px 40px -12px rgba(0, 96, 100, 0.3);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: transform 0.2s ease;
+        }
+
+        .form-card:hover {
+            transform: scale(1.01);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #006064;
+            margin-bottom: 6px;
+            margin-left: 8px;
+        }
+
+        .field {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 30px;
+            border: 2px solid rgba(0, 131, 143, 0.2);
+            background: rgba(255,255,255,0.9);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+            color: #01579b;
+        }
+
+        .field:focus {
+            border-color: #0097a7;
+            box-shadow: 0 0 0 4px rgba(0, 151, 167, 0.2);
+        }
+
+        select.field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23006064' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            background-size: 16px;
+        }
+
+        .date-picker-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .date-picker-row .field {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px -5px rgba(0, 96, 100, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00838f, #4dd0e1);
+            color: white;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #006064, #0097a7);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -8px rgba(0, 96, 100, 0.5);
+        }
+
+        /* Секция задач */
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .tasks-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #004d66;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(8px);
+            padding: 8px 24px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        /* Список задач */
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .task-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 15px 30px -12px rgba(0, 96, 100, 0.2);
+            display: flex;
+            gap: 20px;
+            transition: all 0.3s;
+            animation: slideUp 0.4s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -12px rgba(0, 96, 100, 0.4);
+        }
+
+        .task-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 12px;
+            border: 2px solid #80deea;
+            background: rgba(255,255,255,0.8);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .task-checkbox.checked {
+            background: #00838f;
+            border-color: #00838f;
+        }
+
+        .task-checkbox.checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            font-size: 16px;
+            position: absolute;
+            top: 3px;
+            left: 5px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #004d66;
+            margin-bottom: 4px;
+        }
+
+        .task-desc {
+            font-size: 1rem;
+            color: #006374;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+
+        .task-deadline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 131, 143, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #006064;
+            border: 1px solid rgba(0, 131, 143, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .task-deadline i {
+            font-size: 1rem;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pill {
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(0, 131, 143, 0.1);
+            color: #006064;
+            border: 1px solid rgba(0, 131, 143, 0.2);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: #006064;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: rgba(0, 131, 143, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Таймер */
+        .task-timer {
+            margin-top: 16px;
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 30px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .timer-display {
+            font-family: 'Inter', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #004d66;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-controls .btn {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            background: #00838f;
+            color: white;
+            border-radius: 30px;
+            box-shadow: none;
+        }
+
+        .timer-controls .btn:hover {
+            background: #006064;
+        }
+
+        /* Приоритеты (красный/желтый/зеленый оставлены для контраста) */
+        .priority-red .task-title { color: #b91c1c; }
+        .priority-red .pill { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+        .priority-yellow .task-title { color: #b45309; }
+        .priority-yellow .pill { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+        .priority-green .task-title { color: #065f46; }
+        .priority-green .pill { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+
+        .completed {
+            opacity: 0.6;
+            filter: grayscale(0.3);
+        }
+
+        /* Анимации */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Fullscreen timer */
+        .fullscreen-timer {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #004d66, #006064);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .fullscreen-timer .timer-display {
+            font-size: 8rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 30px #4dd0e1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,70,70,0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 28px;
+            border-radius: 60px;
+            background: #006064;
+            color: white;
+            font-weight: 600;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 15px 30px -10px #006064;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>ConexyTask</h1>
+        <p>Управляй задачами на волне</p>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="form-card">
+        <form id="taskForm">
+            <div class="form-grid">
+                <div class="full-width">
+                    <label><i class="far fa-pen-to-square" style="margin-right: 6px;"></i>Название</label>
+                    <input type="text" id="taskName" class="field" placeholder="Например: Написать отчёт" required>
+                </div>
+                <div class="full-width">
+                    <label><i class="far fa-align-left"></i> Описание</label>
+                    <input type="text" id="taskDescription" class="field" placeholder="Подробности (необязательно)">
+                </div>
+                <div>
+                    <label><i class="fas fa-chart-line"></i> Сложность</label>
+                    <select id="taskComplexity" class="field">
+                        <option value="1">1 — Легко</option>
+                        <option value="2" selected>2 — Средне</option>
+                        <option value="3">3 — Хард</option>
+                    </select>
+                </div>
+                <div>
+                    <label><i class="fas fa-clock"></i> Срочность</label>
+                    <select id="taskUrgency" class="field">
+                        <option value="1">1 — Не горит</option>
+                        <option value="2" selected>2 — Скоро</option>
+                        <option value="3">3 — Горит!</option>
+                    </select>
+                </div>
+                <div class="full-width date-picker-row">
+                    <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
+                    <input type="date" id="taskDeadline" class="field">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-plus-circle"></i> Создать задачу
+            </button>
+        </form>
+    </div>
+
+    <div class="tasks-header">
+        <h2><i class="fas fa-list-check" style="margin-right: 10px;"></i>Твои задачи</h2>
+    </div>
+    <div id="tasksList" class="tasks-list">Загрузка...</div>
+</div>
+
+<!-- Модалка таймера -->
+<div id="timerModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 16px; color:#006064;"><i class="fas fa-hourglass-half"></i> Таймер (минут)</h3>
+        <input type="number" id="timerMinutes" class="field" value="25" min="1" style="margin-bottom: 16px;">
+        <button class="btn btn-primary" style="width:100%;" onclick="startTimerFromModal()">Запустить</button>
+        <button class="btn-icon" style="width:100%; margin-top:12px;" onclick="closeTimerModal()">Отмена</button>
+    </div>
+</div>
+
+<!-- Полноэкранный таймер -->
+<div id="fullscreenTimer" class="fullscreen-timer">
+    <div id="fullscreenTimerDisplay" class="timer-display">00:00</div>
+    <div id="fullscreenTaskTitle" style="font-size:2rem; margin-bottom:40px;"></div>
+    <div style="display:flex; gap:20px;">
+        <button class="btn" style="background:#00838f; color:white; padding:16px 32px;" onclick="fullscreenTogglePause()">
+            <i class="fas fa-pause"></i> Пауза
+        </button>
+        <button class="btn" style="background:#b91c1c; color:white; padding:16px 32px;" onclick="hideFullscreenTimer()">
+            <i class="fas fa-times"></i> Закрыть
+        </button>
+    </div>
+</div>
+
+<script>
+    // === УМНОЕ ПОДКЛЮЧЕНИЕ К БЭКЕНДУ ===
+    const getApiBase = () => {
+        if (localStorage.getItem('apiUrl')) {
+            return localStorage.getItem('apiUrl');
+        }
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:5149';
+        }
+        return window.location.origin;
+    };
+
+    const API_URL = getApiBase() + '/api/tasks';
+    console.log('🌐 API URL:', API_URL);
+
+    fetch(API_URL, { method: 'HEAD' })
+        .then(() => console.log('✅ Бэкенд доступен'))
+        .catch(() => {
+            document.getElementById('tasksList').innerHTML = '<p style="text-align:center; color:#b91c1c;">⚠️ Бэкенд временно недоступен, но локальные данные сохраняются</p>';
+        });
+
+    // Данные
+    let editingTaskId = null;
+    let completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
+    let timers = JSON.parse(localStorage.getItem('taskTimers') || '{}');
+    let taskMeta = JSON.parse(localStorage.getItem('taskMeta') || '{}');
+    let taskDeadlines = JSON.parse(localStorage.getItem('taskDeadlines') || '{}');
+    let timerIntervals = {};
+    let activeFullscreenTaskId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTasks();
+        Object.keys(timers).forEach(id => { if (timers[id].running) startTimerInterval(id); });
+    });
+
+    async function loadTasks() {
+        try {
+            const res = await fetch(API_URL);
+            if (!res.ok) throw new Error('HTTP error ' + res.status);
+            const tasks = await res.json();
+            renderTasks(tasks);
+        } catch (err) {
+            console.warn('Не удалось загрузить с бэкенда, используем localStorage');
+            const localTasks = Object.keys(taskMeta).map(id => ({
+                id,
+                name: localStorage.getItem('taskName_' + id) || 'Задача',
+                description: localStorage.getItem('taskDesc_' + id) || ''
+            }));
+            renderTasks(localTasks);
+        }
+    }
+
+    function renderTasks(tasks) {
+        const container = document.getElementById('tasksList');
+
+        const sorted = tasks.map(t => {
+            const meta = taskMeta[t.id] || { complexity: 2, urgency: 2 };
+            return { ...t, meta, weight: (parseInt(meta.complexity) + parseInt(meta.urgency)) };
+        }).sort((a, b) => b.weight - a.weight);
+
+        if (sorted.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; background:rgba(255,255,255,0.5); border-radius:60px;"><i class="fas fa-smile" style="font-size:3rem; color:#00838f;"></i><p style="margin-top:16px;">Задач пока нет. Создайте первую!</p></div>';
+            return;
+        }
+
+        container.innerHTML = sorted.map(t => {
+            const isComp = completedTasks[t.id];
+            const timer = timers[t.id];
+            const deadline = taskDeadlines[t.id];
+
+            let priorityClass = 'priority-green';
+            if (t.weight >= 5) priorityClass = 'priority-red';
+            else if (t.weight >= 3) priorityClass = 'priority-yellow';
+
+            const deadlineHtml = deadline ?
+                `<div class="task-deadline"><i class="far fa-calendar-check"></i> ${deadline.split('-').reverse().join('.')}</div>` : '';
+
+            return `
+                    <div class="task-card ${priorityClass} ${isComp ? 'completed' : ''}" id="task-${t.id}">
+                        <div class="task-checkbox ${isComp ? 'checked' : ''}" onclick="toggleComplete('${t.id}')"></div>
+                        <div class="task-content">
+                            <div class="task-title">${t.name}</div>
+                            <div class="task-desc">${t.description || ''}</div>
+                            ${deadlineHtml}
+                            <div class="task-footer">
+                                <div class="badge-row">
+                                    <span class="pill"><i class="fas fa-chart-simple"></i> Сл ${t.meta.complexity}</span>
+                                    <span class="pill"><i class="fas fa-clock"></i> Ср ${t.meta.urgency}</span>
+                                </div>
+                                <div class="action-btns">
+                                    <button class="btn-icon" onclick="openTimerModal('${t.id}')"><i class="fas fa-stopwatch"></i></button>
+                                    <button class="btn-icon" onclick="editTask('${t.id}', '${t.name}', '${t.description || ''}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon" onclick="deleteTask('${t.id}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            ${timer ? `
+                                <div class="task-timer">
+                                    <span class="timer-display" id="timer-display-${t.id}">${formatTime(timer.remaining)}</span>
+                                    <div class="timer-controls">
+                                        <button class="btn" onclick="showFullscreenTimer('${t.id}')"><i class="fas fa-expand"></i> Развернуть</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+        }).join('');
+    }
+
+    // === ФОРМА ===
+    document.getElementById('taskForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('taskName').value;
+        const description = document.getElementById('taskDescription').value;
+        const complexity = document.getElementById('taskComplexity').value;
+        const urgency = document.getElementById('taskUrgency').value;
+        const deadline = document.getElementById('taskDeadline').value;
+
+        try {
+            const method = editingTaskId ? 'PUT' : 'POST';
+            const url = editingTaskId ? `${API_URL}/${editingTaskId}` : API_URL;
+            const body = { name, description };
+
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                const result = editingTaskId ? { id: editingTaskId } : await res.json();
+                taskMeta[result.id] = { complexity, urgency };
+                if (deadline) taskDeadlines[result.id] = deadline;
+                else delete taskDeadlines[result.id];
+
+                localStorage.setItem('taskName_' + result.id, name);
+                localStorage.setItem('taskDesc_' + result.id, description);
+                localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
+                localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+
+                editingTaskId = null;
+                document.getElementById('taskForm').reset();
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+                loadTasks();
+                showMsg('✅ Задача сохранена');
+            } else {
+                throw new Error('Ошибка сервера');
+            }
+        } catch (err) {
+            console.warn('Бэкенд не отвечает, сохраняем локально');
+            const fakeId = editingTaskId || 'local-' + Date.now();
+            taskMeta[fakeId] = { complexity, urgency };
+            if (deadline) taskDeadlines[fakeId] = deadline;
+            localStorage.setItem('taskName_' + fakeId, name);
+            localStorage.setItem('taskDesc_' + fakeId, description);
+            localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
+            localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+            if (!editingTaskId) {
+                loadTasks();
+            } else {
+                editingTaskId = null;
+                document.getElementById('taskForm').reset();
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+            }
+            showMsg('⚠️ Данные сохранены локально (бэкенд недоступен)', '#b45309');
+        }
+    };
+
+    async function deleteTask(id) {
+        if (!confirm('Удалить задачу?')) return;
+        try {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+        delete taskMeta[id];
+        delete timers[id];
+        delete taskDeadlines[id];
+        localStorage.removeItem('taskName_' + id);
+        localStorage.removeItem('taskDesc_' + id);
+        saveStore();
+        loadTasks();
+        showMsg('🗑️ Задача удалена');
+    }
+
+    function editTask(id, name, desc) {
+        editingTaskId = id;
+        document.getElementById('taskName').value = name;
+        document.getElementById('taskDescription').value = desc;
+        const m = taskMeta[id] || { complexity: 2, urgency: 2 };
+        document.getElementById('taskComplexity').value = m.complexity;
+        document.getElementById('taskUrgency').value = m.urgency;
+        document.getElementById('taskDeadline').value = taskDeadlines[id] || '';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen-to-square"></i> Обновить задачу';
+        window.scrollTo(0, 0);
+    }
+
+    // === ТАЙМЕРЫ ===
+    function formatTime(s) {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function startTimerInterval(id) {
+        if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+        timerIntervals[id] = setInterval(() => {
+            if (!timers[id] || !timers[id].running) return clearInterval(timerIntervals[id]);
+            timers[id].remaining--;
+            if (timers[id].remaining <= 0) {
+                timers[id].remaining = 0;
+                timers[id].running = false;
+                showMsg('⏰ Время вышло!', '#00838f');
+            }
+            saveStore();
+            const el = document.getElementById(`timer-display-${id}`);
+            if (el) el.textContent = formatTime(timers[id].remaining);
+            if (activeFullscreenTaskId === id) {
+                document.getElementById('fullscreenTimerDisplay').textContent = formatTime(timers[id].remaining);
+            }
+        }, 1000);
+    }
+
+    let currentTimerId = null;
+    window.openTimerModal = function(id) { currentTimerId = id; document.getElementById('timerModal').style.display = 'flex'; };
+    window.closeTimerModal = function() { document.getElementById('timerModal').style.display = 'none'; };
+
+    window.startTimerFromModal = function() {
+        const mins = parseInt(document.getElementById('timerMinutes').value, 10) || 25;
+        timers[currentTimerId] = { remaining: mins * 60, running: true };
+        saveStore();
+        startTimerInterval(currentTimerId);
+        closeTimerModal();
+        loadTasks();
+    };
+
+    window.showFullscreenTimer = function(id) {
+        activeFullscreenTaskId = id;
+        document.getElementById('fullscreenTaskTitle').textContent = document.querySelector(`#task-${id} .task-title`).textContent;
+        document.getElementById('fullscreenTimer').style.display = 'flex';
+    };
+
+    window.hideFullscreenTimer = function() {
+        document.getElementById('fullscreenTimer').style.display = 'none';
+        activeFullscreenTaskId = null;
+    };
+
+    window.fullscreenTogglePause = function() {
+        if (!activeFullscreenTaskId || !timers[activeFullscreenTaskId]) return;
+        timers[activeFullscreenTaskId].running = !timers[activeFullscreenTaskId].running;
+        if (timers[activeFullscreenTaskId].running) {
+            startTimerInterval(activeFullscreenTaskId);
+        }
+        saveStore();
+    };
+
+    function toggleComplete(id) {
+        completedTasks[id] = !completedTasks[id];
+        saveStore();
+        loadTasks();
+    }
+
+    function saveStore() {
+        localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+        localStorage.setItem('taskTimers', JSON.stringify(timers));
+        localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
+        localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+    }
+
+    function showMsg(txt, color = '#006064') {
+        const msg = document.getElementById('message');
+        msg.textContent = txt;
+        msg.style.background = color;
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+    }
+</script>
+</body>
+</html>
