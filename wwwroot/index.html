@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -435,163 +435,285 @@
             z-index: 2000;
             box-shadow: 0 15px 30px -10px #006064;
         }
+
+        /* ==================== МОБИЛЬНАЯ АДАПТАЦИЯ ==================== */
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+                padding: 6px 18px;
+            }
+
+            .form-card {
+                padding: 20px;
+                border-radius: 32px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;  /* все поля в один столбец */
+                gap: 12px;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+
+            .date-picker-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+
+            .tasks-header h2 {
+                font-size: 1.4rem;
+                padding: 6px 16px;
+            }
+
+            .task-card {
+                padding: 18px;
+                gap: 12px;
+                border-radius: 30px;
+                flex-wrap: wrap;  /* на случай если чекбокс переносится */
+            }
+
+            .task-checkbox {
+                width: 24px;
+                height: 24px;
+            }
+
+            .task-title {
+                font-size: 1.2rem;
+            }
+
+            .task-desc {
+                font-size: 0.9rem;
+            }
+
+            .task-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .badge-row {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .action-btns {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .task-timer {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .timer-controls {
+                justify-content: center;
+            }
+
+            .fullscreen-timer .timer-display {
+                font-size: 5rem;
+            }
+
+            .fullscreen-timer .btn {
+                padding: 12px 24px;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 24px;
+                border-radius: 32px;
+            }
+        }
+
+        /* для совсем маленьких экранов (до 400px) */
+        @media (max-width: 400px) {
+            .task-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-checkbox {
+                align-self: flex-start;
+            }
+
+            .action-btns {
+                justify-content: space-around;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>ConexyTask</h1>
-        <p>Управляй задачами на волне</p>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-water" style="margin-right: 12px;"></i>ConexyTask</h1>
+            <p>Управляй задачами на волне</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="form-card">
+            <form id="taskForm">
+                <div class="form-grid">
+                    <div class="full-width">
+                        <label><i class="far fa-pen-to-square" style="margin-right: 6px;"></i>Название</label>
+                        <input type="text" id="taskName" class="field" placeholder="Например: Написать отчёт" required>
+                    </div>
+                    <div class="full-width">
+                        <label><i class="far fa-align-left"></i> Описание</label>
+                        <input type="text" id="taskDescription" class="field" placeholder="Подробности (необязательно)">
+                    </div>
+                    <div>
+                        <label><i class="fas fa-chart-line"></i> Сложность</label>
+                        <select id="taskComplexity" class="field">
+                            <option value="1">1 — Легко</option>
+                            <option value="2" selected>2 — Средне</option>
+                            <option value="3">3 — Хард</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label><i class="fas fa-clock"></i> Срочность</label>
+                        <select id="taskUrgency" class="field">
+                            <option value="1">1 — Не горит</option>
+                            <option value="2" selected>2 — Скоро</option>
+                            <option value="3">3 — Горит!</option>
+                        </select>
+                    </div>
+                    <div class="full-width date-picker-row">
+                        <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
+                        <input type="date" id="taskDeadline" class="field">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-plus-circle"></i> Создать задачу
+                </button>
+            </form>
+        </div>
+
+        <div class="tasks-header">
+            <h2><i class="fas fa-list-check" style="margin-right: 10px;"></i>Твои задачи</h2>
+        </div>
+        <div id="tasksList" class="tasks-list">Загрузка...</div>
     </div>
 
-    <div id="message" class="message"></div>
+    <!-- Модалка таймера -->
+    <div id="timerModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 16px; color:#006064;"><i class="fas fa-hourglass-half"></i> Таймер (минут)</h3>
+            <input type="number" id="timerMinutes" class="field" value="25" min="1" style="margin-bottom: 16px;">
+            <button class="btn btn-primary" style="width:100%;" onclick="startTimerFromModal()">Запустить</button>
+            <button class="btn-icon" style="width:100%; margin-top:12px;" onclick="closeTimerModal()">Отмена</button>
+        </div>
+    </div>
 
-    <div class="form-card">
-        <form id="taskForm">
-            <div class="form-grid">
-                <div class="full-width">
-                    <label><i class="far fa-pen-to-square" style="margin-right: 6px;"></i>Название</label>
-                    <input type="text" id="taskName" class="field" placeholder="Например: Написать отчёт" required>
-                </div>
-                <div class="full-width">
-                    <label><i class="far fa-align-left"></i> Описание</label>
-                    <input type="text" id="taskDescription" class="field" placeholder="Подробности (необязательно)">
-                </div>
-                <div>
-                    <label><i class="fas fa-chart-line"></i> Сложность</label>
-                    <select id="taskComplexity" class="field">
-                        <option value="1">1 — Легко</option>
-                        <option value="2" selected>2 — Средне</option>
-                        <option value="3">3 — Хард</option>
-                    </select>
-                </div>
-                <div>
-                    <label><i class="fas fa-clock"></i> Срочность</label>
-                    <select id="taskUrgency" class="field">
-                        <option value="1">1 — Не горит</option>
-                        <option value="2" selected>2 — Скоро</option>
-                        <option value="3">3 — Горит!</option>
-                    </select>
-                </div>
-                <div class="full-width date-picker-row">
-                    <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
-                    <input type="date" id="taskDeadline" class="field">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary" id="submitBtn">
-                <i class="fas fa-plus-circle"></i> Создать задачу
+    <!-- Полноэкранный таймер -->
+    <div id="fullscreenTimer" class="fullscreen-timer">
+        <div id="fullscreenTimerDisplay" class="timer-display">00:00</div>
+        <div id="fullscreenTaskTitle" style="font-size:2rem; margin-bottom:40px;"></div>
+        <div style="display:flex; gap:20px;">
+            <button class="btn" style="background:#00838f; color:white; padding:16px 32px;" onclick="fullscreenTogglePause()">
+                <i class="fas fa-pause"></i> Пауза
             </button>
-        </form>
+            <button class="btn" style="background:#b91c1c; color:white; padding:16px 32px;" onclick="hideFullscreenTimer()">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+        </div>
     </div>
 
-    <div class="tasks-header">
-        <h2><i class="fas fa-list-check" style="margin-right: 10px;"></i>Твои задачи</h2>
-    </div>
-    <div id="tasksList" class="tasks-list">Загрузка...</div>
-</div>
+    <script>
+        // === УМНОЕ ПОДКЛЮЧЕНИЕ К БЭКЕНДУ ===
+        const getApiBase = () => {
+            if (localStorage.getItem('apiUrl')) {
+                return localStorage.getItem('apiUrl');
+            }
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:5149';
+            }
+            return window.location.origin;
+        };
 
-<!-- Модалка таймера -->
-<div id="timerModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-bottom: 16px; color:#006064;"><i class="fas fa-hourglass-half"></i> Таймер (минут)</h3>
-        <input type="number" id="timerMinutes" class="field" value="25" min="1" style="margin-bottom: 16px;">
-        <button class="btn btn-primary" style="width:100%;" onclick="startTimerFromModal()">Запустить</button>
-        <button class="btn-icon" style="width:100%; margin-top:12px;" onclick="closeTimerModal()">Отмена</button>
-    </div>
-</div>
+        const API_URL = getApiBase() + '/api/tasks';
+        console.log('🌐 API URL:', API_URL);
 
-<!-- Полноэкранный таймер -->
-<div id="fullscreenTimer" class="fullscreen-timer">
-    <div id="fullscreenTimerDisplay" class="timer-display">00:00</div>
-    <div id="fullscreenTaskTitle" style="font-size:2rem; margin-bottom:40px;"></div>
-    <div style="display:flex; gap:20px;">
-        <button class="btn" style="background:#00838f; color:white; padding:16px 32px;" onclick="fullscreenTogglePause()">
-            <i class="fas fa-pause"></i> Пауза
-        </button>
-        <button class="btn" style="background:#b91c1c; color:white; padding:16px 32px;" onclick="hideFullscreenTimer()">
-            <i class="fas fa-times"></i> Закрыть
-        </button>
-    </div>
-</div>
+        fetch(API_URL, { method: 'HEAD' })
+            .then(() => console.log('✅ Бэкенд доступен'))
+            .catch(() => {
+                document.getElementById('tasksList').innerHTML = '<p style="text-align:center; color:#b91c1c;">⚠️ Бэкенд временно недоступен, но локальные данные сохраняются</p>';
+            });
 
-<script>
-    // === УМНОЕ ПОДКЛЮЧЕНИЕ К БЭКЕНДУ ===
-    const getApiBase = () => {
-        if (localStorage.getItem('apiUrl')) {
-            return localStorage.getItem('apiUrl');
-        }
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:5149';
-        }
-        return window.location.origin;
-    };
+        // Данные
+        let editingTaskId = null;
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
+        let timers = JSON.parse(localStorage.getItem('taskTimers') || '{}');
+        let taskMeta = JSON.parse(localStorage.getItem('taskMeta') || '{}');
+        let taskDeadlines = JSON.parse(localStorage.getItem('taskDeadlines') || '{}');
+        let timerIntervals = {};
+        let activeFullscreenTaskId = null;
 
-    const API_URL = getApiBase() + '/api/tasks';
-    console.log('🌐 API URL:', API_URL);
-
-    fetch(API_URL, { method: 'HEAD' })
-        .then(() => console.log('✅ Бэкенд доступен'))
-        .catch(() => {
-            document.getElementById('tasksList').innerHTML = '<p style="text-align:center; color:#b91c1c;">⚠️ Бэкенд временно недоступен, но локальные данные сохраняются</p>';
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+            Object.keys(timers).forEach(id => { if (timers[id].running) startTimerInterval(id); });
         });
 
-    // Данные
-    let editingTaskId = null;
-    let completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '{}');
-    let timers = JSON.parse(localStorage.getItem('taskTimers') || '{}');
-    let taskMeta = JSON.parse(localStorage.getItem('taskMeta') || '{}');
-    let taskDeadlines = JSON.parse(localStorage.getItem('taskDeadlines') || '{}');
-    let timerIntervals = {};
-    let activeFullscreenTaskId = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        loadTasks();
-        Object.keys(timers).forEach(id => { if (timers[id].running) startTimerInterval(id); });
-    });
-
-    async function loadTasks() {
-        try {
-            const res = await fetch(API_URL);
-            if (!res.ok) throw new Error('HTTP error ' + res.status);
-            const tasks = await res.json();
-            renderTasks(tasks);
-        } catch (err) {
-            console.warn('Не удалось загрузить с бэкенда, используем localStorage');
-            const localTasks = Object.keys(taskMeta).map(id => ({
-                id,
-                name: localStorage.getItem('taskName_' + id) || 'Задача',
-                description: localStorage.getItem('taskDesc_' + id) || ''
-            }));
-            renderTasks(localTasks);
-        }
-    }
-
-    function renderTasks(tasks) {
-        const container = document.getElementById('tasksList');
-
-        const sorted = tasks.map(t => {
-            const meta = taskMeta[t.id] || { complexity: 2, urgency: 2 };
-            return { ...t, meta, weight: (parseInt(meta.complexity) + parseInt(meta.urgency)) };
-        }).sort((a, b) => b.weight - a.weight);
-
-        if (sorted.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:40px; background:rgba(255,255,255,0.5); border-radius:60px;"><i class="fas fa-smile" style="font-size:3rem; color:#00838f;"></i><p style="margin-top:16px;">Задач пока нет. Создайте первую!</p></div>';
-            return;
+        async function loadTasks() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                const tasks = await res.json();
+                renderTasks(tasks);
+            } catch (err) {
+                console.warn('Не удалось загрузить с бэкенда, используем localStorage');
+                const localTasks = Object.keys(taskMeta).map(id => ({
+                    id,
+                    name: localStorage.getItem('taskName_' + id) || 'Задача',
+                    description: localStorage.getItem('taskDesc_' + id) || ''
+                }));
+                renderTasks(localTasks);
+            }
         }
 
-        container.innerHTML = sorted.map(t => {
-            const isComp = completedTasks[t.id];
-            const timer = timers[t.id];
-            const deadline = taskDeadlines[t.id];
+        function renderTasks(tasks) {
+            const container = document.getElementById('tasksList');
 
-            let priorityClass = 'priority-green';
-            if (t.weight >= 5) priorityClass = 'priority-red';
-            else if (t.weight >= 3) priorityClass = 'priority-yellow';
+            const sorted = tasks.map(t => {
+                const meta = taskMeta[t.id] || { complexity: 2, urgency: 2 };
+                return { ...t, meta, weight: (parseInt(meta.complexity) + parseInt(meta.urgency)) };
+            }).sort((a, b) => b.weight - a.weight);
 
-            const deadlineHtml = deadline ?
-                `<div class="task-deadline"><i class="far fa-calendar-check"></i> ${deadline.split('-').reverse().join('.')}</div>` : '';
+            if (sorted.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; background:rgba(255,255,255,0.5); border-radius:60px;"><i class="fas fa-smile" style="font-size:3rem; color:#00838f;"></i><p style="margin-top:16px;">Задач пока нет. Создайте первую!</p></div>';
+                return;
+            }
 
-            return `
+            container.innerHTML = sorted.map(t => {
+                const isComp = completedTasks[t.id];
+                const timer = timers[t.id];
+                const deadline = taskDeadlines[t.id];
+
+                let priorityClass = 'priority-green';
+                if (t.weight >= 5) priorityClass = 'priority-red';
+                else if (t.weight >= 3) priorityClass = 'priority-yellow';
+
+                const deadlineHtml = deadline ? 
+                    `<div class="task-deadline"><i class="far fa-calendar-check"></i> ${deadline.split('-').reverse().join('.')}</div>` : '';
+
+                return `
                     <div class="task-card ${priorityClass} ${isComp ? 'completed' : ''}" id="task-${t.id}">
                         <div class="task-checkbox ${isComp ? 'checked' : ''}" onclick="toggleComplete('${t.id}')"></div>
                         <div class="task-content">
@@ -620,174 +742,174 @@
                         </div>
                     </div>
                 `;
-        }).join('');
-    }
+            }).join('');
+        }
 
-    // === ФОРМА ===
-    document.getElementById('taskForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('taskName').value;
-        const description = document.getElementById('taskDescription').value;
-        const complexity = document.getElementById('taskComplexity').value;
-        const urgency = document.getElementById('taskUrgency').value;
-        const deadline = document.getElementById('taskDeadline').value;
+        // === ФОРМА ===
+        document.getElementById('taskForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('taskName').value;
+            const description = document.getElementById('taskDescription').value;
+            const complexity = document.getElementById('taskComplexity').value;
+            const urgency = document.getElementById('taskUrgency').value;
+            const deadline = document.getElementById('taskDeadline').value;
 
-        try {
-            const method = editingTaskId ? 'PUT' : 'POST';
-            const url = editingTaskId ? `${API_URL}/${editingTaskId}` : API_URL;
-            const body = { name, description };
+            try {
+                const method = editingTaskId ? 'PUT' : 'POST';
+                const url = editingTaskId ? `${API_URL}/${editingTaskId}` : API_URL;
+                const body = { name, description };
 
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
 
-            if (res.ok) {
-                const result = editingTaskId ? { id: editingTaskId } : await res.json();
-                taskMeta[result.id] = { complexity, urgency };
-                if (deadline) taskDeadlines[result.id] = deadline;
-                else delete taskDeadlines[result.id];
+                if (res.ok) {
+                    const result = editingTaskId ? { id: editingTaskId } : await res.json();
+                    taskMeta[result.id] = { complexity, urgency };
+                    if (deadline) taskDeadlines[result.id] = deadline;
+                    else delete taskDeadlines[result.id];
 
-                localStorage.setItem('taskName_' + result.id, name);
-                localStorage.setItem('taskDesc_' + result.id, description);
+                    localStorage.setItem('taskName_' + result.id, name);
+                    localStorage.setItem('taskDesc_' + result.id, description);
+                    localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
+                    localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+
+                    editingTaskId = null;
+                    document.getElementById('taskForm').reset();
+                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+                    loadTasks();
+                    showMsg('✅ Задача сохранена');
+                } else {
+                    throw new Error('Ошибка сервера');
+                }
+            } catch (err) {
+                console.warn('Бэкенд не отвечает, сохраняем локально');
+                const fakeId = editingTaskId || 'local-' + Date.now();
+                taskMeta[fakeId] = { complexity, urgency };
+                if (deadline) taskDeadlines[fakeId] = deadline;
+                localStorage.setItem('taskName_' + fakeId, name);
+                localStorage.setItem('taskDesc_' + fakeId, description);
                 localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
                 localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+                if (!editingTaskId) {
+                    loadTasks();
+                } else {
+                    editingTaskId = null;
+                    document.getElementById('taskForm').reset();
+                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+                }
+                showMsg('⚠️ Данные сохранены локально (бэкенд недоступен)', '#b45309');
+            }
+        };
 
-                editingTaskId = null;
-                document.getElementById('taskForm').reset();
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
-                loadTasks();
-                showMsg('✅ Задача сохранена');
-            } else {
-                throw new Error('Ошибка сервера');
-            }
-        } catch (err) {
-            console.warn('Бэкенд не отвечает, сохраняем локально');
-            const fakeId = editingTaskId || 'local-' + Date.now();
-            taskMeta[fakeId] = { complexity, urgency };
-            if (deadline) taskDeadlines[fakeId] = deadline;
-            localStorage.setItem('taskName_' + fakeId, name);
-            localStorage.setItem('taskDesc_' + fakeId, description);
-            localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
-            localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
-            if (!editingTaskId) {
-                loadTasks();
-            } else {
-                editingTaskId = null;
-                document.getElementById('taskForm').reset();
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
-            }
-            showMsg('⚠️ Данные сохранены локально (бэкенд недоступен)', '#b45309');
+        async function deleteTask(id) {
+            if (!confirm('Удалить задачу?')) return;
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            } catch (e) {}
+            delete taskMeta[id];
+            delete timers[id];
+            delete taskDeadlines[id];
+            localStorage.removeItem('taskName_' + id);
+            localStorage.removeItem('taskDesc_' + id);
+            saveStore();
+            loadTasks();
+            showMsg('🗑️ Задача удалена');
         }
-    };
 
-    async function deleteTask(id) {
-        if (!confirm('Удалить задачу?')) return;
-        try {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        } catch (e) {}
-        delete taskMeta[id];
-        delete timers[id];
-        delete taskDeadlines[id];
-        localStorage.removeItem('taskName_' + id);
-        localStorage.removeItem('taskDesc_' + id);
-        saveStore();
-        loadTasks();
-        showMsg('🗑️ Задача удалена');
-    }
+        function editTask(id, name, desc) {
+            editingTaskId = id;
+            document.getElementById('taskName').value = name;
+            document.getElementById('taskDescription').value = desc;
+            const m = taskMeta[id] || { complexity: 2, urgency: 2 };
+            document.getElementById('taskComplexity').value = m.complexity;
+            document.getElementById('taskUrgency').value = m.urgency;
+            document.getElementById('taskDeadline').value = taskDeadlines[id] || '';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen-to-square"></i> Обновить задачу';
+            window.scrollTo(0, 0);
+        }
 
-    function editTask(id, name, desc) {
-        editingTaskId = id;
-        document.getElementById('taskName').value = name;
-        document.getElementById('taskDescription').value = desc;
-        const m = taskMeta[id] || { complexity: 2, urgency: 2 };
-        document.getElementById('taskComplexity').value = m.complexity;
-        document.getElementById('taskUrgency').value = m.urgency;
-        document.getElementById('taskDeadline').value = taskDeadlines[id] || '';
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen-to-square"></i> Обновить задачу';
-        window.scrollTo(0, 0);
-    }
+        // === ТАЙМЕРЫ ===
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
 
-    // === ТАЙМЕРЫ ===
-    function formatTime(s) {
-        const m = Math.floor(s / 60);
-        const sec = s % 60;
-        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    }
+        function startTimerInterval(id) {
+            if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+            timerIntervals[id] = setInterval(() => {
+                if (!timers[id] || !timers[id].running) return clearInterval(timerIntervals[id]);
+                timers[id].remaining--;
+                if (timers[id].remaining <= 0) {
+                    timers[id].remaining = 0;
+                    timers[id].running = false;
+                    showMsg('⏰ Время вышло!', '#00838f');
+                }
+                saveStore();
+                const el = document.getElementById(`timer-display-${id}`);
+                if (el) el.textContent = formatTime(timers[id].remaining);
+                if (activeFullscreenTaskId === id) {
+                    document.getElementById('fullscreenTimerDisplay').textContent = formatTime(timers[id].remaining);
+                }
+            }, 1000);
+        }
 
-    function startTimerInterval(id) {
-        if (timerIntervals[id]) clearInterval(timerIntervals[id]);
-        timerIntervals[id] = setInterval(() => {
-            if (!timers[id] || !timers[id].running) return clearInterval(timerIntervals[id]);
-            timers[id].remaining--;
-            if (timers[id].remaining <= 0) {
-                timers[id].remaining = 0;
-                timers[id].running = false;
-                showMsg('⏰ Время вышло!', '#00838f');
+        let currentTimerId = null;
+        window.openTimerModal = function(id) { currentTimerId = id; document.getElementById('timerModal').style.display = 'flex'; };
+        window.closeTimerModal = function() { document.getElementById('timerModal').style.display = 'none'; };
+
+        window.startTimerFromModal = function() {
+            const mins = parseInt(document.getElementById('timerMinutes').value, 10) || 25;
+            timers[currentTimerId] = { remaining: mins * 60, running: true };
+            saveStore();
+            startTimerInterval(currentTimerId);
+            closeTimerModal();
+            loadTasks();
+        };
+
+        window.showFullscreenTimer = function(id) {
+            activeFullscreenTaskId = id;
+            document.getElementById('fullscreenTaskTitle').textContent = document.querySelector(`#task-${id} .task-title`).textContent;
+            document.getElementById('fullscreenTimer').style.display = 'flex';
+        };
+
+        window.hideFullscreenTimer = function() {
+            document.getElementById('fullscreenTimer').style.display = 'none';
+            activeFullscreenTaskId = null;
+        };
+
+        window.fullscreenTogglePause = function() {
+            if (!activeFullscreenTaskId || !timers[activeFullscreenTaskId]) return;
+            timers[activeFullscreenTaskId].running = !timers[activeFullscreenTaskId].running;
+            if (timers[activeFullscreenTaskId].running) {
+                startTimerInterval(activeFullscreenTaskId);
             }
             saveStore();
-            const el = document.getElementById(`timer-display-${id}`);
-            if (el) el.textContent = formatTime(timers[id].remaining);
-            if (activeFullscreenTaskId === id) {
-                document.getElementById('fullscreenTimerDisplay').textContent = formatTime(timers[id].remaining);
-            }
-        }, 1000);
-    }
+        };
 
-    let currentTimerId = null;
-    window.openTimerModal = function(id) { currentTimerId = id; document.getElementById('timerModal').style.display = 'flex'; };
-    window.closeTimerModal = function() { document.getElementById('timerModal').style.display = 'none'; };
-
-    window.startTimerFromModal = function() {
-        const mins = parseInt(document.getElementById('timerMinutes').value, 10) || 25;
-        timers[currentTimerId] = { remaining: mins * 60, running: true };
-        saveStore();
-        startTimerInterval(currentTimerId);
-        closeTimerModal();
-        loadTasks();
-    };
-
-    window.showFullscreenTimer = function(id) {
-        activeFullscreenTaskId = id;
-        document.getElementById('fullscreenTaskTitle').textContent = document.querySelector(`#task-${id} .task-title`).textContent;
-        document.getElementById('fullscreenTimer').style.display = 'flex';
-    };
-
-    window.hideFullscreenTimer = function() {
-        document.getElementById('fullscreenTimer').style.display = 'none';
-        activeFullscreenTaskId = null;
-    };
-
-    window.fullscreenTogglePause = function() {
-        if (!activeFullscreenTaskId || !timers[activeFullscreenTaskId]) return;
-        timers[activeFullscreenTaskId].running = !timers[activeFullscreenTaskId].running;
-        if (timers[activeFullscreenTaskId].running) {
-            startTimerInterval(activeFullscreenTaskId);
+        function toggleComplete(id) {
+            completedTasks[id] = !completedTasks[id];
+            saveStore();
+            loadTasks();
         }
-        saveStore();
-    };
 
-    function toggleComplete(id) {
-        completedTasks[id] = !completedTasks[id];
-        saveStore();
-        loadTasks();
-    }
+        function saveStore() {
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            localStorage.setItem('taskTimers', JSON.stringify(timers));
+            localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
+            localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
+        }
 
-    function saveStore() {
-        localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-        localStorage.setItem('taskTimers', JSON.stringify(timers));
-        localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
-        localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
-    }
-
-    function showMsg(txt, color = '#006064') {
-        const msg = document.getElementById('message');
-        msg.textContent = txt;
-        msg.style.background = color;
-        msg.style.display = 'block';
-        setTimeout(() => msg.style.display = 'none', 3000);
-    }
-</script>
+        function showMsg(txt, color = '#006064') {
+            const msg = document.getElementById('message');
+            msg.textContent = txt;
+            msg.style.background = color;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+    </script>
 </body>
 </html>
