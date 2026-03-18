@@ -6,13 +6,11 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Берем строку подключения
 var rawConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
               ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 string finalConn;
 
-// 2. Умный парсер, который не сломает порт
 if (!string.IsNullOrEmpty(rawConn) && rawConn.Contains("://"))
 {
     var builderConn = new NpgsqlConnectionStringBuilder();
@@ -25,7 +23,6 @@ if (!string.IsNullOrEmpty(rawConn) && rawConn.Contains("://"))
     builderConn.Username = userInfo[0];
     if (userInfo.Length > 1) builderConn.Password = userInfo[1];
 
-    // Если порт в ссылке есть - ставим его, если нет (-1) - Npgsql сам поставит 5432
     if (uri.Port > 0) 
     {
         builderConn.Port = uri.Port;
@@ -51,7 +48,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 3. Используем NpgsqlConnectionStringBuilder для надежности
 builder.Services.AddDbContext<DbConexy>(options =>
     options.UseNpgsql(finalConn));
 
@@ -74,6 +70,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseCors();
 app.MapControllers();
 app.Run();
