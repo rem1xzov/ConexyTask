@@ -362,11 +362,8 @@
         input[type="date"].field {
             appearance: none;
             -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23006064' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 18px center;
-            background-size: 18px;
-            padding-right: 52px;
+            background-image: none; /* иконку рисуем кнопкой поверх */
+            padding-right: 56px; /* место под кнопку-календарь */
         }
 
         /* Safari/Chrome: скрыть нативную кнопку календаря */
@@ -376,6 +373,43 @@
             width: 44px;
             height: 44px;
             cursor: pointer;
+        }
+
+        .date-field-wrap {
+            position: relative;
+            width: 100%;
+            flex: 1;
+        }
+
+        .date-field-wrap .field {
+            width: 100%;
+        }
+
+        .date-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 14px;
+            background: rgba(0, 131, 143, 0.10);
+            color: #006064;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .date-btn:hover {
+            background: rgba(0, 131, 143, 0.18);
+            transform: translateY(-50%) scale(1.04);
+        }
+
+        .date-btn:active {
+            transform: translateY(-50%) scale(0.98);
         }
 
         .date-picker-row {
@@ -535,6 +569,8 @@
         .badge-row {
             display: flex;
             gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .pill {
@@ -824,8 +860,14 @@
             }
 
             input[type="date"].field {
-                background-position: right 14px center;
-                padding-right: 50px;
+                padding-right: 54px;
+            }
+
+            .date-btn {
+                right: 8px;
+                width: 42px;
+                height: 42px;
+                border-radius: 13px;
             }
 
             .task-timer {
@@ -926,7 +968,12 @@
                         </div>
                         <div class="full-width date-picker-row">
                             <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
-                            <input type="date" id="taskDeadline" class="field">
+                            <div class="date-field-wrap">
+                                <input type="date" id="taskDeadline" class="field">
+                                <button type="button" class="date-btn" onclick="openDeadlinePicker()" aria-label="Выбрать дату">
+                                    <i class="far fa-calendar-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -1027,6 +1074,17 @@
             loadTasks();
             Object.keys(timers).forEach(id => { if (timers[id].running) startTimerInterval(id); });
         });
+
+        window.openDeadlinePicker = function() {
+            const el = document.getElementById('taskDeadline');
+            if (!el) return;
+            if (typeof el.showPicker === 'function') {
+                el.showPicker();
+            } else {
+                el.focus();
+                el.click();
+            }
+        };
 
         function setTimerView(on, taskId = null) {
             const main = document.getElementById('mainPage');
