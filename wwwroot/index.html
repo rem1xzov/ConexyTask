@@ -165,6 +165,106 @@
             -webkit-backdrop-filter: blur(18px) saturate(1.25);
         }
 
+        /* ==================== TIMER PAGE (inside index.html) ==================== */
+        .timer-page {
+            display: none;
+        }
+
+        .timer-page.is-active {
+            display: block;
+        }
+
+        .main-page.is-hidden {
+            display: none;
+        }
+
+        .timer-header h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #006064, #0097a7, #4dd0e1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            filter: drop-shadow(0 8px 12px rgba(0, 96, 100, 0.2));
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .timer-card {
+            border-radius: 48px;
+            padding: 28px;
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(255,255,255,0.55);
+            backdrop-filter: blur(18px) saturate(1.25);
+            -webkit-backdrop-filter: blur(18px) saturate(1.25);
+            position: relative;
+            box-shadow:
+                0 22px 50px -22px rgba(0, 70, 85, 0.45),
+                inset 0 1px 0 rgba(255,255,255,0.55);
+        }
+
+        .timer-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(900px 320px at 15% 10%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%);
+            pointer-events: none;
+        }
+
+        .timer-ui {
+            display: grid;
+            gap: 14px;
+            text-align: center;
+            padding: 14px 0 6px;
+        }
+
+        .timer-task-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #004d66;
+            opacity: 0.95;
+            overflow-wrap: anywhere;
+        }
+
+        .timer-page-display {
+            font-family: 'Inter', monospace;
+            font-weight: 900;
+            font-size: clamp(3.2rem, 8vw, 6rem);
+            color: #004d66;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 22px rgba(77, 208, 225, 0.35);
+        }
+
+        .timer-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #b91c1c, #ef4444);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
+
+        .timer-hint {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: #006374;
+            opacity: 0.85;
+        }
+
+        @media (max-width: 600px) {
+            .timer-card { border-radius: 34px; padding: 20px; }
+            .timer-btn-row { grid-template-columns: 1fr; }
+        }
+
         /* respect reduced motion */
         @media (prefers-reduced-motion: reduce) {
             .cloud { animation: none !important; }
@@ -447,6 +547,18 @@
             border: 1px solid rgba(0, 131, 143, 0.2);
         }
 
+        .pill-overdue {
+            background: rgba(156, 23, 37, 0.22) !important;
+            color: #9c1725 !important;
+            border-color: rgba(156, 23, 37, 0.55) !important;
+        }
+
+        .task-card.overdue {
+            background: linear-gradient(135deg, rgba(156, 23, 37, 0.62), rgba(255,255,255,0.7)) !important;
+            border-color: rgba(156, 23, 37, 0.95) !important;
+            box-shadow: 0 28px 56px -22px rgba(156, 23, 37, 0.72) !important;
+        }
+
         .action-btns {
             display: flex;
             gap: 12px;
@@ -550,7 +662,6 @@
         .fullscreen-timer {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #004d66, #006064);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -558,7 +669,9 @@
             z-index: 1000;
             color: white;
             font-size: 3rem;
-            backdrop-filter: blur(10px);
+            background: rgba(0, 96, 100, 0.22);
+            backdrop-filter: blur(18px) saturate(1.25);
+            -webkit-backdrop-filter: blur(18px) saturate(1.25);
         }
 
         .fullscreen-timer .timer-display {
@@ -566,6 +679,24 @@
             font-weight: 800;
             color: white;
             text-shadow: 0 0 30px #4dd0e1;
+        }
+
+        .fullscreen-timer-inner {
+            width: min(720px, 92vw);
+            padding: 28px;
+            border-radius: 48px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.28);
+            box-shadow: 0 30px 80px -40px rgba(0, 70, 85, 0.6), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+
+        .fullscreen-timer-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(900px 320px at 15% 10%, rgba(255,255,255,0.35), rgba(255,255,255,0) 55%);
+            pointer-events: none;
         }
 
         .modal {
@@ -749,55 +880,84 @@
         <div class="cloud d2" style="--y: 82vh; --w: 30vw; --o: 0.28; --b: 8px; --t: 54s; --r: -1deg;"></div>
     </div>
     <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-water" style="margin-right: 12px;"></i>ConexyTask</h1>
-            <p>Управляй задачами на волне</p>
+        <div id="mainPage" class="main-page">
+            <div class="header">
+                <h1><i class="fas fa-water" style="margin-right: 12px;"></i>ConexyTask</h1>
+                <p>Управляй задачами на волне</p>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <div class="form-card">
+                <form id="taskForm">
+                    <div class="form-grid">
+                        <div class="full-width">
+                            <label><i class="far fa-pen-to-square" style="margin-right: 6px;"></i>Название</label>
+                            <input type="text" id="taskName" class="field" placeholder="Например: Написать отчёт" required>
+                        </div>
+                        <div class="full-width">
+                            <label><i class="far fa-align-left"></i> Описание</label>
+                            <input type="text" id="taskDescription" class="field" placeholder="Подробности (необязательно)">
+                        </div>
+                        <div>
+                            <label><i class="fas fa-chart-line"></i> Сложность</label>
+                            <select id="taskComplexity" class="field">
+                                <option value="1">1 — Легко</option>
+                                <option value="2" selected>2 — Средне</option>
+                                <option value="3">3 — Хард</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label><i class="fas fa-clock"></i> Срочность</label>
+                            <select id="taskUrgency" class="field">
+                                <option value="1">1 — Не горит</option>
+                                <option value="2" selected>2 — Скоро</option>
+                                <option value="3">3 — Горит!</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label><i class="fas fa-repeat"></i> Повтор</label>
+                            <select id="taskRepeat" class="field">
+                                <option value="none" selected>Без повтора</option>
+                                <option value="daily">Каждый день</option>
+                                <option value="weekly">Каждую неделю</option>
+                                <option value="monthly">Каждый месяц</option>
+                            </select>
+                        </div>
+                        <div class="full-width date-picker-row">
+                            <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
+                            <input type="date" id="taskDeadline" class="field">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-plus-circle"></i> Создать задачу
+                    </button>
+                </form>
+            </div>
+
+            <div class="tasks-header">
+                <h2><i class="fas fa-list-check" style="margin-right: 10px;"></i>Твои задачи</h2>
+            </div>
+            <div id="tasksList" class="tasks-list">Загрузка...</div>
         </div>
 
-        <div id="message" class="message"></div>
+        <div id="timerPage" class="timer-page" aria-hidden="true">
+            <div class="timer-header">
+                <h1><i class="fas fa-hourglass-half" style="margin-right: 12px;"></i>Таймер</h1>
+            </div>
 
-        <div class="form-card">
-            <form id="taskForm">
-                <div class="form-grid">
-                    <div class="full-width">
-                        <label><i class="far fa-pen-to-square" style="margin-right: 6px;"></i>Название</label>
-                        <input type="text" id="taskName" class="field" placeholder="Например: Написать отчёт" required>
+            <div class="timer-card">
+                <div class="timer-ui">
+                    <div id="timerPageTaskTitle" class="timer-task-title">Задача</div>
+                    <div id="timerPageDisplay" class="timer-page-display">00:00</div>
+                    <div class="timer-btn-row">
+                        <button id="timerPagePauseBtn" class="btn btn-primary"><i class="fas fa-pause"></i> Пауза</button>
+                        <button id="timerPageBackBtn" class="btn btn-danger"><i class="fas fa-arrow-left"></i> Назад</button>
                     </div>
-                    <div class="full-width">
-                        <label><i class="far fa-align-left"></i> Описание</label>
-                        <input type="text" id="taskDescription" class="field" placeholder="Подробности (необязательно)">
-                    </div>
-                    <div>
-                        <label><i class="fas fa-chart-line"></i> Сложность</label>
-                        <select id="taskComplexity" class="field">
-                            <option value="1">1 — Легко</option>
-                            <option value="2" selected>2 — Средне</option>
-                            <option value="3">3 — Хард</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label><i class="fas fa-clock"></i> Срочность</label>
-                        <select id="taskUrgency" class="field">
-                            <option value="1">1 — Не горит</option>
-                            <option value="2" selected>2 — Скоро</option>
-                            <option value="3">3 — Горит!</option>
-                        </select>
-                    </div>
-                    <div class="full-width date-picker-row">
-                        <label><i class="far fa-calendar-alt"></i> Дедлайн</label>
-                        <input type="date" id="taskDeadline" class="field">
-                    </div>
+                    <div id="timerPageHint" class="timer-hint">Страница использует данные из localStorage.</div>
                 </div>
-                <button type="submit" class="btn btn-primary" id="submitBtn">
-                    <i class="fas fa-plus-circle"></i> Создать задачу
-                </button>
-            </form>
+            </div>
         </div>
-
-        <div class="tasks-header">
-            <h2><i class="fas fa-list-check" style="margin-right: 10px;"></i>Твои задачи</h2>
-        </div>
-        <div id="tasksList" class="tasks-list">Загрузка...</div>
     </div>
 
     <!-- Модалка таймера -->
@@ -812,15 +972,17 @@
 
     <!-- Полноэкранный таймер -->
     <div id="fullscreenTimer" class="fullscreen-timer">
-        <div id="fullscreenTimerDisplay" class="timer-display">00:00</div>
-        <div id="fullscreenTaskTitle" style="font-size:2rem; margin-bottom:40px;"></div>
-        <div style="display:flex; gap:20px;">
-            <button class="btn" style="background:#00838f; color:white; padding:16px 32px;" onclick="fullscreenTogglePause()">
-                <i class="fas fa-pause"></i> Пауза
-            </button>
-            <button class="btn" style="background:#b91c1c; color:white; padding:16px 32px;" onclick="hideFullscreenTimer()">
-                <i class="fas fa-times"></i> Закрыть
-            </button>
+        <div class="fullscreen-timer-inner">
+            <div id="fullscreenTimerDisplay" class="timer-display" style="text-align:center;">00:00</div>
+            <div id="fullscreenTaskTitle" style="font-size:2rem; margin: 10px 0 28px; text-align:center;"></div>
+            <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+                <button id="fullscreenPauseBtn" class="btn" style="background:#00838f; color:white; padding:16px 32px;" onclick="fullscreenTogglePause()">
+                    <i class="fas fa-pause"></i> Пауза
+                </button>
+                <button class="btn" style="background:#b91c1c; color:white; padding:16px 32px;" onclick="hideFullscreenTimer()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
         </div>
     </div>
 
@@ -853,11 +1015,217 @@
         let taskDeadlines = JSON.parse(localStorage.getItem('taskDeadlines') || '{}');
         let timerIntervals = {};
         let activeFullscreenTaskId = null;
+        let timerPageInterval = null;
 
         document.addEventListener('DOMContentLoaded', () => {
+            const qs = new URLSearchParams(window.location.search);
+            const view = qs.get('view');
+            const id = qs.get('id');
+            if (view === 'timer') {
+                setTimerView(true, id);
+            }
             loadTasks();
             Object.keys(timers).forEach(id => { if (timers[id].running) startTimerInterval(id); });
         });
+
+        function setTimerView(on, taskId = null) {
+            const main = document.getElementById('mainPage');
+            const timerPage = document.getElementById('timerPage');
+            if (!main || !timerPage) return;
+
+            if (on) {
+                main.classList.add('is-hidden');
+                timerPage.classList.add('is-active');
+                timerPage.setAttribute('aria-hidden', 'false');
+                setTimerPageTask(taskId);
+                history.replaceState(null, '', `?view=timer&id=${encodeURIComponent(taskId || '')}`);
+            } else {
+                main.classList.remove('is-hidden');
+                timerPage.classList.remove('is-active');
+                timerPage.setAttribute('aria-hidden', 'true');
+                if (timerPageInterval) {
+                    clearInterval(timerPageInterval);
+                    timerPageInterval = null;
+                }
+                history.replaceState(null, '', 'index.html');
+            }
+        }
+
+        function setTimerPageTask(taskId) {
+            const titleEl = document.getElementById('timerPageTaskTitle');
+            const displayEl = document.getElementById('timerPageDisplay');
+            const pauseBtn = document.getElementById('timerPagePauseBtn');
+            const backBtn = document.getElementById('timerPageBackBtn');
+            const hintEl = document.getElementById('timerPageHint');
+
+            if (!titleEl || !displayEl || !pauseBtn || !backBtn || !hintEl) return;
+
+            const completed = JSON.parse(localStorage.getItem('completedTasks') || '{}');
+
+            const update = () => {
+                const all = JSON.parse(localStorage.getItem('taskTimers') || '{}');
+                const t = taskId ? all[taskId] : null;
+                const name = taskId ? (localStorage.getItem('taskName_' + taskId) || 'Задача') : 'Не выбрана задача';
+                titleEl.textContent = (taskId && completed[taskId] ? '✓ ' : '') + name;
+
+                if (!taskId) {
+                    displayEl.textContent = '—';
+                    hintEl.textContent = 'Откройте таймер из карточки задачи.';
+                    pauseBtn.disabled = true;
+                    pauseBtn.style.opacity = 0.6;
+                    return;
+                }
+
+                if (!t) {
+                    displayEl.textContent = '—';
+                    hintEl.textContent = 'Для этой задачи таймер ещё не запущен.';
+                    pauseBtn.disabled = true;
+                    pauseBtn.style.opacity = 0.6;
+                    return;
+                }
+
+                pauseBtn.disabled = false;
+                pauseBtn.style.opacity = 1;
+
+                const remaining = (t.running && typeof t.endsAt === 'number')
+                    ? Math.max(0, Math.ceil((t.endsAt - Date.now()) / 1000))
+                    : Math.max(0, parseInt(t.remaining, 10) || 0);
+
+                displayEl.textContent = formatTime(remaining);
+                pauseBtn.innerHTML = t.running
+                    ? '<i class="fas fa-pause"></i> Пауза'
+                    : '<i class="fas fa-play"></i> Продолжить';
+
+                // если время вышло — фиксируем состояние
+                if (t.running && remaining <= 0) {
+                    all[taskId].remaining = 0;
+                    all[taskId].running = false;
+                    delete all[taskId].endsAt;
+                    localStorage.setItem('taskTimers', JSON.stringify(all));
+                }
+
+                hintEl.textContent = 'Страница использует данные из localStorage.';
+            };
+
+            // reset handlers
+            pauseBtn.onclick = () => {
+                const all = JSON.parse(localStorage.getItem('taskTimers') || '{}');
+                if (!taskId || !all[taskId]) return;
+                const cur = all[taskId];
+                const remaining = (cur.running && typeof cur.endsAt === 'number')
+                    ? Math.max(0, Math.ceil((cur.endsAt - Date.now()) / 1000))
+                    : Math.max(0, parseInt(cur.remaining, 10) || 0);
+
+                cur.remaining = remaining;
+                cur.running = !cur.running;
+                if (cur.running) cur.endsAt = Date.now() + remaining * 1000;
+                else delete cur.endsAt;
+                localStorage.setItem('taskTimers', JSON.stringify(all));
+                update();
+            };
+
+            backBtn.onclick = () => setTimerView(false);
+
+            update();
+            if (timerPageInterval) clearInterval(timerPageInterval);
+            timerPageInterval = setInterval(update, 600);
+        }
+
+        function getRemainingSeconds(t) {
+            if (!t) return 0;
+            if (t.running && typeof t.endsAt === 'number') {
+                const diff = Math.ceil((t.endsAt - Date.now()) / 1000);
+                return Math.max(0, diff);
+            }
+            return Math.max(0, parseInt(t.remaining, 10) || 0);
+        }
+
+        function localISODate(d = new Date()) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function isOverdue(deadlineStr) {
+            if (!deadlineStr) return false;
+            return deadlineStr < localISODate();
+        }
+
+        function getRepeatLabel(v) {
+            if (v === 'daily') return 'Каждый день';
+            if (v === 'weekly') return 'Каждую неделю';
+            if (v === 'monthly') return 'Каждый месяц';
+            return '';
+        }
+
+        function addDaysISO(iso, days) {
+            const d = iso ? new Date(iso + 'T00:00:00') : new Date();
+            d.setDate(d.getDate() + days);
+            return localISODate(d);
+        }
+
+        function addMonthsISO(iso, months) {
+            const d = iso ? new Date(iso + 'T00:00:00') : new Date();
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + months);
+            // если месяц короче — JS сам скорректирует, это ок
+            if (d.getDate() !== day) {
+                // корректировка не обязательна, оставляем как есть
+            }
+            return localISODate(d);
+        }
+
+        function advanceDeadlineForRepeat(id, repeat) {
+            const cur = taskDeadlines[id] || localISODate();
+            if (repeat === 'daily') taskDeadlines[id] = addDaysISO(cur, 1);
+            else if (repeat === 'weekly') taskDeadlines[id] = addDaysISO(cur, 7);
+            else if (repeat === 'monthly') taskDeadlines[id] = addMonthsISO(cur, 1);
+        }
+
+        function nextDeadlineFromRepeat(deadlineStr, repeat) {
+            const base = deadlineStr || localISODate();
+            if (repeat === 'daily') return addDaysISO(base, 1);
+            if (repeat === 'weekly') return addDaysISO(base, 7);
+            if (repeat === 'monthly') return addMonthsISO(base, 1);
+            return deadlineStr || '';
+        }
+
+        function newLocalId() {
+            return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
+
+        async function createTaskInstance(name, description) {
+            // Пытаемся создать на бэкенде, если доступен
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description })
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.id) return String(json.id);
+                }
+            } catch (e) {}
+
+            // fallback: локальная задача
+            const id = newLocalId();
+            localStorage.setItem('taskName_' + id, name);
+            localStorage.setItem('taskDesc_' + id, description || '');
+            return id;
+        }
+
+        function syncTimerRemaining(id) {
+            if (!timers[id]) return;
+            const r = getRemainingSeconds(timers[id]);
+            timers[id].remaining = r;
+            if (r <= 0) {
+                timers[id].remaining = 0;
+                timers[id].running = false;
+                delete timers[id].endsAt;
+            }
+        }
 
         async function loadTasks() {
             try {
@@ -880,7 +1248,7 @@
             const container = document.getElementById('tasksList');
 
             const sorted = tasks.map(t => {
-                const meta = taskMeta[t.id] || { complexity: 2, urgency: 2 };
+                const meta = taskMeta[t.id] || { complexity: 2, urgency: 2, repeat: 'none' };
                 return { ...t, meta, weight: (parseInt(meta.complexity) + parseInt(meta.urgency)) };
             }).sort((a, b) => b.weight - a.weight);
 
@@ -891,15 +1259,21 @@
 
             container.innerHTML = sorted.map(t => {
                 const isComp = completedTasks[t.id];
-                const timer = timers[t.id];
+                const timer = timers[t.id] ? (syncTimerRemaining(t.id), timers[t.id]) : null;
                 const deadline = taskDeadlines[t.id];
+                const overdue = !isComp && isOverdue(deadline);
 
                 let priorityClass = 'priority-green';
                 if (t.weight >= 5) priorityClass = 'priority-red';
                 else if (t.weight >= 3) priorityClass = 'priority-yellow';
+                if (overdue) priorityClass = 'priority-red overdue';
 
                 const deadlineHtml = deadline ? 
                     `<div class="task-deadline"><i class="far fa-calendar-check"></i> ${deadline.split('-').reverse().join('.')}</div>` : '';
+
+                const overduePill = overdue ? `<span class="pill pill-overdue"><i class="fas fa-triangle-exclamation"></i> Просрочена</span>` : '';
+                const repeatLabel = getRepeatLabel(t.meta.repeat);
+                const repeatPill = repeatLabel ? `<span class="pill"><i class="fas fa-repeat"></i> ${repeatLabel}</span>` : '';
 
                 return `
                     <div class="task-card ${priorityClass} ${isComp ? 'completed' : ''}" id="task-${t.id}">
@@ -910,8 +1284,10 @@
                             ${deadlineHtml}
                             <div class="task-footer">
                                 <div class="badge-row">
+                                    ${overduePill}
                                     <span class="pill"><i class="fas fa-chart-simple"></i> Сл ${t.meta.complexity}</span>
                                     <span class="pill"><i class="fas fa-clock"></i> Ср ${t.meta.urgency}</span>
+                                    ${repeatPill}
                                 </div>
                                 <div class="action-btns">
                                     <button class="btn-icon" onclick="openTimerModal('${t.id}')"><i class="fas fa-stopwatch"></i></button>
@@ -923,7 +1299,7 @@
                                 <div class="task-timer">
                                     <span class="timer-display" id="timer-display-${t.id}">${formatTime(timer.remaining)}</span>
                                     <div class="timer-controls">
-                                        <button class="btn" onclick="showFullscreenTimer('${t.id}')"><i class="fas fa-expand"></i> Развернуть</button>
+                                        <button class="btn" onclick="openTimerPage('${t.id}')"><i class="fas fa-up-right-from-square"></i> Страница</button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -940,6 +1316,7 @@
             const description = document.getElementById('taskDescription').value;
             const complexity = document.getElementById('taskComplexity').value;
             const urgency = document.getElementById('taskUrgency').value;
+            const repeat = document.getElementById('taskRepeat').value;
             const deadline = document.getElementById('taskDeadline').value;
 
             const resetCreateForm = () => {
@@ -949,6 +1326,7 @@
                 document.getElementById('taskDeadline').value = '';
                 document.getElementById('taskComplexity').value = '2';
                 document.getElementById('taskUrgency').value = '2';
+                document.getElementById('taskRepeat').value = 'none';
                 document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
             };
 
@@ -965,7 +1343,7 @@
 
                 if (res.ok) {
                     const result = editingTaskId ? { id: editingTaskId } : await res.json();
-                    taskMeta[result.id] = { complexity, urgency };
+                    taskMeta[result.id] = { complexity, urgency, repeat };
                     if (deadline) taskDeadlines[result.id] = deadline;
                     else delete taskDeadlines[result.id];
 
@@ -983,7 +1361,7 @@
             } catch (err) {
                 console.warn('Бэкенд не отвечает, сохраняем локально');
                 const fakeId = editingTaskId || 'local-' + Date.now();
-                taskMeta[fakeId] = { complexity, urgency };
+                taskMeta[fakeId] = { complexity, urgency, repeat };
                 if (deadline) taskDeadlines[fakeId] = deadline;
                 localStorage.setItem('taskName_' + fakeId, name);
                 localStorage.setItem('taskDesc_' + fakeId, description);
@@ -1014,9 +1392,10 @@
             editingTaskId = id;
             document.getElementById('taskName').value = name;
             document.getElementById('taskDescription').value = desc;
-            const m = taskMeta[id] || { complexity: 2, urgency: 2 };
+            const m = taskMeta[id] || { complexity: 2, urgency: 2, repeat: 'none' };
             document.getElementById('taskComplexity').value = m.complexity;
             document.getElementById('taskUrgency').value = m.urgency;
+            document.getElementById('taskRepeat').value = m.repeat || 'none';
             document.getElementById('taskDeadline').value = taskDeadlines[id] || '';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen-to-square"></i> Обновить задачу';
             window.scrollTo(0, 0);
@@ -1033,10 +1412,8 @@
             if (timerIntervals[id]) clearInterval(timerIntervals[id]);
             timerIntervals[id] = setInterval(() => {
                 if (!timers[id] || !timers[id].running) return clearInterval(timerIntervals[id]);
-                timers[id].remaining--;
-                if (timers[id].remaining <= 0) {
-                    timers[id].remaining = 0;
-                    timers[id].running = false;
+                syncTimerRemaining(id);
+                if (!timers[id].running && timers[id].remaining === 0) {
                     showMsg('⏰ Время вышло!', '#00838f');
                 }
                 saveStore();
@@ -1054,7 +1431,7 @@
 
         window.startTimerFromModal = function() {
             const mins = parseInt(document.getElementById('timerMinutes').value, 10) || 25;
-            timers[currentTimerId] = { remaining: mins * 60, running: true };
+            timers[currentTimerId] = { remaining: mins * 60, running: true, endsAt: Date.now() + mins * 60 * 1000 };
             saveStore();
             startTimerInterval(currentTimerId);
             closeTimerModal();
@@ -1064,7 +1441,16 @@
         window.showFullscreenTimer = function(id) {
             activeFullscreenTaskId = id;
             document.getElementById('fullscreenTaskTitle').textContent = document.querySelector(`#task-${id} .task-title`).textContent;
+            const t = timers[id];
+            if (t) {
+                document.getElementById('fullscreenTimerDisplay').textContent = formatTime(t.remaining);
+            }
+            updateFullscreenPauseBtn();
             document.getElementById('fullscreenTimer').style.display = 'flex';
+        };
+
+        window.openTimerPage = function(id) {
+            setTimerView(true, id);
         };
 
         window.hideFullscreenTimer = function() {
@@ -1072,17 +1458,63 @@
             activeFullscreenTaskId = null;
         };
 
+        function updateFullscreenPauseBtn() {
+            const btn = document.getElementById('fullscreenPauseBtn');
+            if (!btn) return;
+            const t = activeFullscreenTaskId ? timers[activeFullscreenTaskId] : null;
+            if (!t) {
+                btn.innerHTML = '<i class="fas fa-play"></i> Запустить';
+                return;
+            }
+            btn.innerHTML = t.running
+                ? '<i class="fas fa-pause"></i> Пауза'
+                : '<i class="fas fa-play"></i> Продолжить';
+        }
+
         window.fullscreenTogglePause = function() {
             if (!activeFullscreenTaskId || !timers[activeFullscreenTaskId]) return;
-            timers[activeFullscreenTaskId].running = !timers[activeFullscreenTaskId].running;
-            if (timers[activeFullscreenTaskId].running) {
+            syncTimerRemaining(activeFullscreenTaskId);
+            const t = timers[activeFullscreenTaskId];
+            t.running = !t.running;
+            if (t.running) {
+                t.endsAt = Date.now() + t.remaining * 1000;
                 startTimerInterval(activeFullscreenTaskId);
+            } else {
+                delete t.endsAt;
             }
             saveStore();
+            updateFullscreenPauseBtn();
         };
 
-        function toggleComplete(id) {
-            completedTasks[id] = !completedTasks[id];
+        async function toggleComplete(id) {
+            const wasCompleted = !!completedTasks[id];
+            const nextCompleted = !wasCompleted;
+
+            if (nextCompleted) {
+                const meta = taskMeta[id] || { complexity: 2, urgency: 2, repeat: 'none' };
+                const repeat = meta.repeat || 'none';
+
+                if (repeat !== 'none') {
+                    // повторяющаяся задача: текущую помечаем завершённой, и создаём новую на следующий период
+                    completedTasks[id] = true;
+
+                    const name = localStorage.getItem('taskName_' + id) || 'Задача';
+                    const desc = localStorage.getItem('taskDesc_' + id) || '';
+                    const curDeadline = taskDeadlines[id] || '';
+                    const nextDeadline = nextDeadlineFromRepeat(curDeadline, repeat);
+
+                    const newId = await createTaskInstance(name, desc);
+                    taskMeta[newId] = { ...meta }; // включая repeat
+                    if (nextDeadline) taskDeadlines[newId] = nextDeadline;
+
+                    saveStore();
+                    loadTasks();
+                    showMsg('🔁 Создано повторение задачи', '#006064');
+                    return;
+                }
+            }
+
+            completedTasks[id] = nextCompleted;
             saveStore();
             loadTasks();
         }
