@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConexyTask · морская версия</title>
+    <title>ConexyTask</title>
+    <!-- Подключаем шрифт Inter и иконки Font Awesome для красоты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
@@ -24,6 +26,7 @@
             padding: 32px 20px;
             line-height: 1.5;
             color: #01579b;
+            -webkit-text-size-adjust: 100%;
         }
 
         .container {
@@ -31,6 +34,7 @@
             width: 100%;
         }
 
+        /* Хедер с волной */
         .header {
             margin-bottom: 32px;
             text-align: center;
@@ -61,6 +65,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
+        /* Карточка формы */
         .form-card {
             background: rgba(255,255,255,0.7);
             backdrop-filter: blur(12px);
@@ -162,6 +167,7 @@
             box-shadow: 0 20px 30px -8px rgba(0, 96, 100, 0.5);
         }
 
+        /* Секция задач */
         .tasks-header {
             display: flex;
             justify-content: space-between;
@@ -180,6 +186,7 @@
             border: 1px solid rgba(255,255,255,0.6);
         }
 
+        /* Список задач */
         .tasks-list {
             display: flex;
             flex-direction: column;
@@ -197,6 +204,7 @@
             gap: 20px;
             transition: all 0.3s;
             animation: slideUp 0.4s ease;
+            overflow: hidden;
         }
 
         .task-card:hover {
@@ -241,6 +249,7 @@
             font-weight: 700;
             color: #004d66;
             margin-bottom: 4px;
+            overflow-wrap: anywhere;
         }
 
         .task-desc {
@@ -248,6 +257,7 @@
             color: #006374;
             opacity: 0.8;
             margin-bottom: 12px;
+            overflow-wrap: anywhere;
         }
 
         .task-deadline {
@@ -316,6 +326,7 @@
             transform: scale(1.1);
         }
 
+        /* Таймер */
         .task-timer {
             margin-top: 16px;
             background: rgba(255,255,255,0.5);
@@ -353,23 +364,43 @@
             background: #006064;
         }
 
-        .priority-red .task-title { color: #b91c1c; }
-        .priority-red .pill { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
-        .priority-yellow .task-title { color: #b45309; }
-        .priority-yellow .pill { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+        /* Приоритеты: подсветка ВСЕЙ карточки задачи */
+        .task-card.priority-red {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.52), rgba(255,255,255,0.7));
+            border-color: rgba(239, 68, 68, 0.75);
+            box-shadow: 0 26px 52px -20px rgba(239, 68, 68, 0.65);
+        }
+        .task-card.priority-yellow {
+            /* base: #F6E58D */
+            background: linear-gradient(135deg, rgba(246, 229, 141, 0.72), rgba(255,255,255,0.7));
+            border-color: rgba(246, 229, 141, 0.9);
+            box-shadow: 0 26px 52px -20px rgba(180, 83, 9, 0.36);
+        }
+        .task-card.priority-green {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.44), rgba(255,255,255,0.7));
+            border-color: rgba(34, 197, 94, 0.7);
+            box-shadow: 0 26px 52px -20px rgba(34, 197, 94, 0.52);
+        }
+
+        .priority-red .task-title { color: #991b1b; }
+        .priority-red .pill { background: rgba(239, 68, 68, 0.26); color: #991b1b; border-color: rgba(239, 68, 68, 0.48); }
+        .priority-yellow .task-title { color: #854d0e; }
+        .priority-yellow .pill { background: rgba(246, 229, 141, 0.56); color: #854d0e; border-color: rgba(246, 229, 141, 0.8); }
         .priority-green .task-title { color: #065f46; }
-        .priority-green .pill { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+        .priority-green .pill { background: rgba(34, 197, 94, 0.22); color: #065f46; border-color: rgba(34, 197, 94, 0.42); }
 
         .completed {
             opacity: 0.6;
             filter: grayscale(0.3);
         }
 
+        /* Анимации */
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Fullscreen timer */
         .fullscreen-timer {
             position: fixed;
             inset: 0;
@@ -427,9 +458,10 @@
             box-shadow: 0 15px 30px -10px #006064;
         }
 
+        /* ==================== МОБИЛЬНАЯ АДАПТАЦИЯ ==================== */
         @media (max-width: 600px) {
             body {
-                padding: 16px 12px;
+                padding: calc(16px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
             }
 
             .header h1 {
@@ -447,7 +479,7 @@
             }
 
             .form-grid {
-                grid-template-columns: 1fr; 
+                grid-template-columns: 1fr;  /* все поля в один столбец */
                 gap: 12px;
             }
 
@@ -471,11 +503,16 @@
                 padding: 6px 16px;
             }
 
+            .tasks-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
             .task-card {
                 padding: 18px;
                 gap: 12px;
                 border-radius: 30px;
-                flex-wrap: wrap; 
+                flex-wrap: wrap;  /* на случай если чекбокс переносится */
             }
 
             .task-checkbox {
@@ -507,6 +544,11 @@
                 justify-content: flex-end;
             }
 
+            select.field {
+                background-position: right 14px center;
+                padding-right: 46px;
+            }
+
             .task-timer {
                 flex-direction: column;
                 align-items: stretch;
@@ -532,7 +574,7 @@
             }
         }
 
-        
+        /* для совсем маленьких экранов (до 400px) */
         @media (max-width: 400px) {
             .task-card {
                 flex-direction: column;
@@ -552,7 +594,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>ConexyTask</h1>
+            <h1><i class="fas fa-water" style="margin-right: 12px;"></i>ConexyTask</h1>
             <p>Управляй задачами на волне</p>
         </div>
 
@@ -744,6 +786,16 @@
             const urgency = document.getElementById('taskUrgency').value;
             const deadline = document.getElementById('taskDeadline').value;
 
+            const resetCreateForm = () => {
+                editingTaskId = null;
+                document.getElementById('taskName').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskDeadline').value = '';
+                document.getElementById('taskComplexity').value = '2';
+                document.getElementById('taskUrgency').value = '2';
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+            };
+
             try {
                 const method = editingTaskId ? 'PUT' : 'POST';
                 const url = editingTaskId ? `${API_URL}/${editingTaskId}` : API_URL;
@@ -766,9 +818,7 @@
                     localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
                     localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
 
-                    editingTaskId = null;
-                    document.getElementById('taskForm').reset();
-                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
+                    resetCreateForm();
                     loadTasks();
                     showMsg('✅ Задача сохранена');
                 } else {
@@ -783,13 +833,8 @@
                 localStorage.setItem('taskDesc_' + fakeId, description);
                 localStorage.setItem('taskMeta', JSON.stringify(taskMeta));
                 localStorage.setItem('taskDeadlines', JSON.stringify(taskDeadlines));
-                if (!editingTaskId) {
-                    loadTasks();
-                } else {
-                    editingTaskId = null;
-                    document.getElementById('taskForm').reset();
-                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Создать задачу';
-                }
+                resetCreateForm();
+                loadTasks();
                 showMsg('⚠️ Данные сохранены локально (бэкенд недоступен)', '#b45309');
             }
         };
