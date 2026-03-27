@@ -132,8 +132,8 @@ ConexyTask/
 
 1. **Клонируйте репозиторий**
    ```bash
-   git clone https://github.com/rem1x_zov/conexytask.git
-   cd conexytask
+   git clone https://github.com/rem1x_zov/ConexyTask.git
+   cd ConexyTask
    ```
 
 2. **Настройте базу данных**
